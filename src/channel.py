@@ -23,10 +23,6 @@ class Channel:
     def channel_id(self):
         return self._channel_id
 
-    @channel_id.setter
-    def channel_id(self, new_channel_id):
-        raise AttributeError("Can't set attribute 'channel_id'")
-
     @property
     def title(self):
         return self._title
@@ -76,7 +72,7 @@ class Channel:
             print(f"An error occurred: {e}")
             return {}
 
-    def to_json(self, filename: str) -> None:
+    def save_to_json(self, filename: str) -> None:
         """Сохраняет значения атрибутов экземпляра в файл JSON."""
         data = {
             'channel_id': self._channel_id,
@@ -91,14 +87,64 @@ class Channel:
         with open(filename, 'w', encoding='utf-8') as json_file:
             json.dump(data, json_file, ensure_ascii=False, indent=4)
 
+    def __str__(self):
+        """Возвращает строковое представление канала."""
+        return f"{self._title} ({self._url})"
+
+    def __add__(self, other):
+        """Сложение двух каналов по количеству подписчиков."""
+        if isinstance(other, Channel):
+            return self._subscriber_count + other._subscriber_count
+        else:
+            raise TypeError("Unsupported operand type for +")
+
+    def __sub__(self, other):
+        """Вычитание двух каналов по количеству подписчиков."""
+        if isinstance(other, Channel):
+            return self._subscriber_count - other._subscriber_count
+        else:
+            raise TypeError("Unsupported operand type for -")
+
+    def __eq__(self, other):
+        """Сравнение двух каналов по количеству подписчиков."""
+        if isinstance(other, Channel):
+            return self._subscriber_count == other._subscriber_count
+        else:
+            raise TypeError("Unsupported operand type for ==")
+
+    def __lt__(self, other):
+        """Сравнение двух каналов по количеству подписчиков (меньше)."""
+        if isinstance(other, Channel):
+            return self._subscriber_count < other._subscriber_count
+        else:
+            raise TypeError("Unsupported operand type for <")
+
+    def __gt__(self, other):
+        """Сравнение двух каналов по количеству подписчиков (больше)."""
+        if isinstance(other, Channel):
+            return self._subscriber_count > other._subscriber_count
+        else:
+            raise TypeError("Unsupported operand type for >")
+
+    def __ge__(self, other):
+        """Сравнение двух каналов по количеству подписчиков (больше или равно)."""
+        if isinstance(other, Channel):
+            return self._subscriber_count >= other._subscriber_count
+        else:
+            raise TypeError("Unsupported operand type for >=")
+
 if __name__ == '__main__':
+    # Создаем два экземпляра класса
     moscowpython = Channel('UC-OVMPlMA3-YCIeg4z5z23A')
+    highload = Channel('UCwHL6WHUarjGfUM_586me8w')
 
-    # Получаем значения атрибутов
-    print(moscowpython.title)  # MoscowPython
-    print(moscowpython.video_count)  # 685 (может уже больше)
-    print(moscowpython.url)  # https://www.youtube.com/channel/UC-OVMPlMA3-YCIeg4z5z23A
-
-    # Попытка изменить channel_id
-    moscowpython.channel_id = 'Новое название'
-    # Вызывает AttributeError: Can't set attribute 'channel_id'
+    # Используем различные магические методы
+    print(str(moscowpython))  # 'MoscowPython (https://www.youtube.com/channel/UC-OVMPlMA3-YCIeg4z5z23A)'
+    print(moscowpython + highload)  # 100100
+    print(moscowpython - highload)  # -48300
+    print(highload - moscowpython)  # 48300
+    print(moscowpython > highload)  # False
+    print(moscowpython >= highload)  # False
+    print(moscowpython < highload)  # True
+    print(moscowpython <= highload)  # True
+    print(moscowpython == highload)  # False
