@@ -1,17 +1,28 @@
 import json
+import os
+from dotenv import load_dotenv
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
+# Загрузка переменных окружения из файла .env
+load_dotenv()
+
 class Channel:
-    """Класс для ютуб-канала"""
 
     def __init__(self, channel_id: str) -> None:
-        """Экземпляр инициализируется id канала. Данные будут подтягиваться по API."""
         self._channel_id = channel_id
-        self._service = self.get_service()
 
-        # Заполняем атрибуты данными канала
+        # Инициализируем сервис с помощью ключа API из переменной среды
+        api_key = os.getenv("YOUTUBE_API_KEY")
+        if api_key is None:
+            raise ValueError("YouTube API key not found in the environment variable")
+
+        self._service = self.get_service(api_key)
+
+        # Получить информацию о канале с помощью сервиса
         channel_info = self.fetch_channel_info()
+
+        # Rest of your code remains the same
         self._title = channel_info['items'][0]['snippet']['title']
         self._description = channel_info['items'][0]['snippet']['description']
         self._url = f'https://www.youtube.com/channel/{self._channel_id}'
@@ -48,13 +59,12 @@ class Channel:
         return self._view_count
 
     @staticmethod
-    def get_service():
-        """Возвращает объект для работы с YouTube API."""
-        api_key = 'AIzaSyBwpysyWMHiI5JBQkS0xHTRZCvUVyRxe9g'  # ключ API
+    def get_service(api_key):
+        """Возвращает объект для работы с API YouTube."""
         return build('youtube', 'v3', developerKey=api_key)
 
     def fetch_channel_info(self) -> dict:
-        """Запрос к YouTube API для получения информации о канале."""
+        """Запрашивает API YouTube для получения информации о канале."""
         try:
             request = self._service.channels().list(
                 part='snippet,statistics',
